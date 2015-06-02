@@ -1,0 +1,11 @@
+#RPATH /home/sel228/R-3.0.3/bin/Rscript
+#PLINKPATH /home/sel228/dave/plink
+#INPUT /home/dwfard2/adgc_files/raw_PLINK/_adc2_complete
+#SCRIPTS /home/sel228/dave/QC/scripts
+#MAF na
+#MIND .01
+#GENO .01
+#FMIN -2e-02
+#FMAX 8e-02
+#HWE 10e-06
+#PI_HAT 0.1875
