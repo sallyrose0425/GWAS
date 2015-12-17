@@ -1,0 +1,8 @@
+#INPUT /home/sally/work/final
+#SMARTPCA smartpca
+#WORK /home/sally/work
+#PLINKPATH plink
+#ASSAYED /home/sally/work/assayed.txt
+#PHENO pheno1
+#PFILE /home/sally/work/pheno.txt
+#SCRIPTS /home/sally/GWAS/QC
