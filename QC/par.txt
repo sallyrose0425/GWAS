@@ -1,8 +1,0 @@
-genotypename:    smartpca.ped
-snpname:         smartpca.map
-indivname:       smartpca.ped
-evecoutname:     smartpca.evec
-evaloutname:     smartpca.eval
-altnormstyle:    NO
-familynames:     NO
-grmoutname:      grmjunk
