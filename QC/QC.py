@@ -7,8 +7,8 @@ for line in pfile:
   paramname, paramvalue = line.split()
   params[paramname[1:]]=paramvalue
 
-bfile=params['INPUT'].split('/')[-1]
-logfile=open('final_QC.log', 'w')
+bfile=params['WORK']+'/'+params['INPUT'].split('/')[-1]
+logfile=open(params['WORK']+'/final_QC.log', 'w')
 logfile.write('Input parameters: '+sys.argv[1]+'\n')
 for p in params:
   logfile.write(p+'\t'+params[p]+'\n')
@@ -16,7 +16,7 @@ logfile.write('************************************\n\n')
 
 #CHECK SEX
 if params['SEX'] == 'yes':
-  os.system(params['PLINKPATH']+' --bfile '+params['INPUT']+' --check-sex --out '+bfile+'_sexcheck')
+  os.system(params['PLINKPATH']+' --bfile '+params['INPUT']+' --check-sex --pheno '+params['PFILE']+' --pheno-name '+params['PHENO']+' --out '+bfile+'_sexcheck')
   #number of samples
   proc = subprocess.Popen(['grep', 'people', bfile+'_sexcheck.log'], stdout=subprocess.PIPE)
   tmp, err = proc.communicate()
@@ -54,9 +54,9 @@ if params['SEX'] == 'yes':
     logfile.write('n =  '+str(n)+'\n\n')
 
 #investigate missingness
-os.system(params['PLINKPATH']+' --bfile '+params['INPUT']+' --missing --out '+bfile+'_miss')
-os.system(params['RPATH']+' '+params['SCRIPTS']+'/missing.R '+bfile+'_miss.imiss '+bfile+'_miss.lmiss')
-os.system('mv Rplots.pdf '+bfile+'_missing.pdf')
+os.system(params['PLINKPATH']+' --bfile '+params['INPUT']+' --missing --pheno '+params['PFILE']+' --pheno-name '+params['PHENO']+'  --out '+bfile+'_miss')
+os.system(params['RPATH']+' '+params['SCRIPTS']+'/missing.R '+bfile+'_miss.imiss '+bfile+'_miss.lmiss '+params['WORK']+ ' ')
+#os.system('mv Rplots.pdf '+bfile+'_missing.pdf')
 imiss = bfile+'_miss.imiss'
 
 #if n and v not obtained during sex check, do here
@@ -79,7 +79,7 @@ if params['MAF'] == 'na':
   logfile.write('MAF = 10/n = '+params['MAF']+'\n')
 if 'MIND1' not in params:
   os.system(params['PLINKPATH']+' --bfile '+params['INPUT']+' --geno '+params['GENO']+' --maf '+params['MAF']+' --mind '+params['MIND']+' --make-bed --out '+bfile+'_thresh')
-  #now bfile and input should always be same sp just use bfile
+  #now bfile and input should always be same so just use bfile
   bfile=bfile+'_thresh'
   #report on QC
   proc = subprocess.Popen(['grep', 'mind)', bfile+'.log'], stdout=subprocess.PIPE)
@@ -140,7 +140,7 @@ else:
   else:
     geno = 0
   logfile.write('Variants removed after --geno = '+str(geno)+'\n')
-  proc = subprocess.Popen(['grep', 'maf)', bfile+'.log'], stdout=subprocess.PIPE)
+  proc = subprocess.Popen(['grep', 'minor allele threshold', bfile+'.log'], stdout=subprocess.PIPE)
   tmp = proc.stdout.read()
   maf = int(tmp.split()[0])
   logfile.write('Variants removed after --maf = '+str(maf)+'\n')
@@ -174,8 +174,8 @@ else:
 #heterozygosity
 if 'HET' in params:
   os.system(params['PLINKPATH']+' --bfile '+bfile+' --het --out '+bfile+'_het')
-  os.system(params['RPATH']+' '+params['SCRIPTS']+'/het.R '+bfile+'_het.het > '+bfile+'_f.txt')
-  os.system('mv Rplots.pdf '+bfile+'_het.pdf')
+  os.system(params['RPATH']+' '+params['SCRIPTS']+'/het.R '+bfile+'_het.het > '+bfile+'_f.txt '+params['WORK'])
+  #os.system('mv Rplots.pdf '+bfile+'_het.pdf')
 
   logfile.write('\nSamples sorted by f written to '+bfile+'_f.txt\n')
   hfile=open(bfile+'_hremove.txt', 'w')
@@ -243,8 +243,8 @@ if 'HET' in params:
 #Hardy-Weinberg Equilibrium
 os.system(params['PLINKPATH']+' --bfile '+bfile+'  --hardy --pheno '+params['PFILE']+' --pheno-name '+params['PHENO']+' --out '+bfile+'_hwe')
 os.system('grep "O(HET)\|UNAFF" '+bfile+'_hwe.hwe > '+bfile+'_hwe_ctrl.hwe')
-os.system(params['RPATH']+' '+params['SCRIPTS']+'/hwe.R '+bfile+'_hwe_ctrl.hwe')
-os.system('mv Rplots.pdf '+bfile+'_hwe.pdf')
+os.system(params['RPATH']+' '+params['SCRIPTS']+'/hwe.R '+bfile+'_hwe_ctrl.hwe '+params['WORK'])
+#os.system('mv Rplots.pdf '+bfile+'_hwe.pdf')
 
 hwe=float(params['HWE'])
 hweout=open(bfile+'_hwe_ctrl.hwe', 'r')
@@ -281,8 +281,8 @@ if 'ASSAYED' in params:
 else:
   os.system(params['PLINKPATH']+' --bfile '+bfile+' --indep-pairwise 1500 150 0.2 --out '+bfile+'_thin')
 os.system(params['PLINKPATH']+' --bfile '+bfile+' --extract '+bfile+'_thin.prune.in --genome --min 0.05 --out '+bfile+'_genome')
-os.system(params['RPATH']+' '+params['SCRIPTS']+'/relate.R '+bfile+'_genome.genome')
-os.system('mv Rplots.pdf '+bfile+'_rel.pdf')
+os.system(params['RPATH']+' '+params['SCRIPTS']+'/relate.R '+bfile+'_genome.genome '+params['WORK'])
+#os.system('mv Rplots.pdf '+bfile+'_rel.pdf')
 relout=open(bfile+'_genome.genome', 'r')
 relfile=open(bfile+'_relremove.txt', 'w')
 first=0
@@ -324,14 +324,14 @@ if len(nrel) > 0:
   n = int(tmp.split()[1])
   logfile.write('n =  '+str(n)+'\n\n')
 
-os.system('tar czvf final_graphs.tgz *.pdf')
+os.system('tar czvf '+params['WORK']+'/final_graphs.tgz '+params['WORK']+'/*.png')
 logfile.write('Final bfile: '+bfile+'\nGraphs in final_graphs.tgz\n')
 
 if 'CLEAN' in params:
   #os.system('mv '+bfile+'+.log final.log && mv '+bfile+'.bed final.bed.t && mv '+bfile+'.bim final.bim.t && mv '+bfile+'.fam final.fam.t && rm *.bed && rm *.bim && rm *.fam && mv final.bed.t final.bed && mv final.bim.t final.bim && mv final.fam.t final.fam ')
-  os.system('mv '+bfile+'.log final.log')
-  os.system('mv '+bfile+'.bed final.bed')
-  os.system('mv '+bfile+'.bim final.bim')
-  os.system('mv '+bfile+'.fam final.fam')
-  os.system('rm '+params['INPUT'].split('/')[-1]+'*')
+  os.system('mv '+bfile+'.log '+params['WORK']+'/final.log')
+  os.system('mv '+bfile+'.bed '+params['WORK']+'/final.bed')
+  os.system('mv '+bfile+'.bim '+params['WORK']+'/final.bim')
+  os.system('mv '+bfile+'.fam '+params['WORK']+'/final.fam')
+  os.system('rm '+params['INPUT']+'_*')
   print('\nFiles cleaned\n')

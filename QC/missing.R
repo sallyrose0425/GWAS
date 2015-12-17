@@ -1,5 +1,8 @@
 args <- commandArgs(trailingOnly = TRUE)
 
+png(paste(args[3], "/missing.png", sep=""))
+
+
 IMISS=read.table(args[1], header=T, as.is=T)
 
 LMISS=read.table(args[2], header=T, as.is=T)
@@ -17,3 +20,4 @@ plot( (1:dim(LMISS)[1])/(dim(LMISS)[1]-1), sort(1-LMISS$F_MISS), main="SNP cover
 cumulative distribution", xlab="Quantile", ylab="Coverage" ); grid()
 
 par(oldpar)
+dev.off()
