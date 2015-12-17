@@ -1,1 +1,2 @@
 # GWAS
+This project provides details on the necessary steps to assess and control data in genome wide association studies (GWAS) using genotype information on a large number of genetic markers for a large number of individuals. Due to varied study designs and genotyping platforms between multiple sites/projects as well as potential genotyping errors, it is important to ensure high quality data. Scripts and directions are provided here to facilitate others in this process.
